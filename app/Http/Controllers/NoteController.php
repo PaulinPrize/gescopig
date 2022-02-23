@@ -131,6 +131,12 @@ class NoteController extends Controller
         elseif($n == '15'){
             $method = 'rn_intermediaireYaounde';
         }
+        elseif ($n == '16'){
+            $method = 'pvcc_dla';
+        }
+        elseif ($n == '17'){
+            $method = 'pvcc_yde';
+        }
         $model = 'notes';
 
         return view('search',compact('cycles','model', 'method', 'type', 'academicYears', 'cur_year'));
@@ -314,7 +320,7 @@ class NoteController extends Controller
             Flash::error('Un ou plusieurs apprenants n\'ont pas de note de CC');
             return redirect()->back();
         }
-
+        // dd($enseignement);
         return view('notes.show', compact('enseignement', 'contrats' , 'type'));
     }
 
@@ -392,6 +398,7 @@ class NoteController extends Controller
             Flash::error('Un ou plusieurs apprenants n\'ont pas de note de CC');
             return redirect()->back();
         }
+        // dd($enseignement);
 
         return view('notes.showYaounde', compact('enseignement', 'contrats' , 'type'));
     }
@@ -1166,6 +1173,7 @@ class NoteController extends Controller
         $ecues =[];
         $academicYear = $aa;
         $ec = $specialite->ecues->where('semestre_id', $sem);
+
         foreach($ec as $ecue){
             $ecues[] = $ecue->id;
         }
@@ -1175,23 +1183,77 @@ class NoteController extends Controller
         ->whereIn('ecue_id', $ecues);
         
         
-        /*
-        $result = array();
-        foreach($enseignements as $key => $enseignement){
-            $result[$key] = $enseignement->ecue->title;
-        }
-        $result = array_unique($result);
-        */
-        /*
-        $ens = DB::table('enseignements')
-        ->where('specialite_id', $spec)
-        ->where('academic_year_id', $aa->id)
-        ->whereIn('ecue_id', $ecues)
-        ->distinct()->get(['ecue_id']);
-        */
-        return view('notes.pvcc', compact('contrats', 'enseignements', 'academicYear', 'semestre'));
+        $eq = $specialite->ecues->where('academic_year_id', $aa->id)->where('semestre_id', $sem);
+        //dd($eq);
+        return view('notes.pvcc', compact('contrats', 'enseignements', 'academicYear', 'semestre', 'eq'));
     }
 
+    public function pvcc_dla($sem, $spec, Request $request){
+        $specialite = $this->specialiteRepository->findWithoutFail($spec);
+        $semestre = $this->semestreRepository->findWithoutFail($sem);
+        $cycle = $this->semestreRepository->findWithoutFail($semestre->id)->cycle;
+
+        $aa = ($request->ay_id == null) ? $this->anneeAcademic : $this->academicYearRepository->findWithoutFail($request->ay_id);
+
+        $contrats = Contrat::join('apprenants', 'apprenant_id', '=', 'apprenants.id')
+            ->select('contrats.*')
+            ->where('specialite_id', $spec)
+            ->where('cycle_id', $cycle->id)
+            ->where('contrats.academic_year_id', $aa->id)
+            ->where('ville_id', 1)
+            ->orderBy('apprenants.nom')
+            ->orderBy('apprenants.prenom')
+            ->get();
+
+        $ecues =[];
+        $academicYear = $aa;
+        $ec = $specialite->ecues->where('semestre_id', $sem);
+        foreach($ec as $ecue){
+            $ecues[] = $ecue->id;
+        }
+        
+        $enseignements = $specialite->enseignements
+        ->where('academic_year_id', $aa->id)
+        ->where('ville_id', 1)
+        ->whereIn('ecue_id', $ecues);
+
+        $eq = $specialite->ecues->where('academic_year_id', $aa->id)->where('semestre_id', $sem);
+        return view('notes.pvcc', compact('contrats', 'enseignements', 'academicYear', 'semestre', 'eq'));
+    }
+
+        public function pvcc_yde($sem, $spec, Request $request){
+        $specialite = $this->specialiteRepository->findWithoutFail($spec);
+        $semestre = $this->semestreRepository->findWithoutFail($sem);
+        $cycle = $this->semestreRepository->findWithoutFail($semestre->id)->cycle;
+
+        $aa = ($request->ay_id == null) ? $this->anneeAcademic : $this->academicYearRepository->findWithoutFail($request->ay_id);
+
+        $contrats = Contrat::join('apprenants', 'apprenant_id', '=', 'apprenants.id')
+            ->select('contrats.*')
+            ->where('specialite_id', $spec)
+            ->where('cycle_id', $cycle->id)
+            ->where('contrats.academic_year_id', $aa->id)
+            ->where('ville_id', 2)
+            ->orderBy('apprenants.nom')
+            ->orderBy('apprenants.prenom')
+            ->get();
+
+        $ecues =[];
+        $academicYear = $aa;
+        $ec = $specialite->ecues->where('semestre_id', $sem);
+        foreach($ec as $ecue){
+            $ecues[] = $ecue->id;
+        }
+        
+        $enseignements = $specialite->enseignements
+        ->where('academic_year_id', $aa->id)
+        ->where('ville_id', 2)
+        ->whereIn('ecue_id', $ecues);
+
+        $eq = $specialite->ecues->where('academic_year_id', $aa->id)->where('semestre_id', $sem);
+        
+        return view('notes.pvcc', compact('contrats', 'enseignements', 'academicYear', 'semestre', 'eq'));
+    }
 
     /**
      * API methods definition Start

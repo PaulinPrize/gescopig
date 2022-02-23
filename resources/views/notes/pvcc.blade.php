@@ -29,9 +29,18 @@
                         <th colspan="{{ $enseignements->count() +1 }}" class="text-center">ELEMENTS CONSTITUTIFS D'UNITE D'ENSEIGNEMENT (ECUES)</th>
                     </tr>
                     <tr>
+                        <!--
                         @foreach($enseignements as $enseignement)  
                             <th class="vertical">{{ $enseignement->ecue->title}}</th>
                         @endforeach
+                        -->
+                        
+                        @foreach($eq as $e)
+                        @if($e->enseignements->where('specialite_id', $contrats->first()->specialite_id)->first())
+                            <th class="vertical">{{ $e->title}}</th>
+                        @endif 
+                        @endforeach
+                        
                     </tr>
 {{--                <tr>--}}
 {{--                    @foreach($enseignements as $enseignement)--}}
@@ -44,10 +53,25 @@
                     <tr>
                         <td>{!! $academicYear->debut.'-'.$contrat->id !!}</td>
                         <td>{!! $contrat->apprenant->nom. ' ' .$contrat->apprenant->prenom !!}</td>
+                        <!--
                         @foreach($enseignements as $enseignement)
                             <td class="text-right">{!! ($contrat->notes->where('enseignement_id', $enseignement->id)->first()) ? $contrat->notes->where('enseignement_id', $enseignement->id)->first()->cc : 0 !!}
                             </td>
                         @endforeach
+                        -->
+                        
+                        @foreach($eq as $ecue)
+                        @if($ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first())
+                            <td>
+                                
+                                    {!! 
+                                        $contrat->notes->where('enseignement_id', $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first()->id)->first() ? $contrat->notes->where('enseignement_id', $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first()->id)->first()->cc : 0
+                                    !!}
+                                
+                            </td>
+                        @endif
+                        @endforeach
+                        
                     </tr>
                 @endforeach
                 </tbody>

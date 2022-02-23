@@ -292,6 +292,12 @@ class EnseignementController extends AppBaseController
         return view('enseignements.show')->with('enseignement', $enseignement);
     }
 
+    // Méthode permettant d'afficher les fiches d'autorisation de paiement
+    public function autorisationPaiement($id){
+        $enseignement = $this->enseignementRepository->findWithoutFail($id);
+        return view('enseignements.autorisation-paiement')->with('enseignement', $enseignement);
+    }
+
     /**
      * Show the form for editing the specified Enseignement.
      *

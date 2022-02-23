@@ -58,12 +58,16 @@
                     </a>
                     <ul class="treeview-menu">
                         @can('create notes')
+                            <!--
                             <li><a href="{!! url('notes/search/1') !!}">Enregistrer notes</a></li>
+                            -->
                             <li><a href="{!! url('notes/search/10') !!}">Enregistrer notes DLA</a></li>
                             <li><a href="{!! url('notes/search/11') !!}">Enregistrer notes YDE</a></li>
                         @endcan
                         @can('create deliberation')
+                            <!--
                             <li><a href="{!! url('notes/search/3') !!}">Enregistrer notes de deliberation</a></li>
+                            -->
                             <li><a href="{!! url('notes/search/12') !!}">Enr notes de deliberation DLA</a></li>
                             <li><a href="{!! url('notes/search/13') !!}">Enr notes de deliberation YDE</a></li>
                         @endcan
@@ -72,6 +76,8 @@
                         @endcan
                         @can('print notes')
                                 <li><a href="{!! url('notes/search/6') !!}">Imprimer pv cc</a></li>
+                                <li><a href="{!! url('notes/search/16') !!}">Imprimer pv cc DLA</a></li>
+                                <li><a href="{!! url('notes/search/17') !!}">Imprimer pv cc YDE</a></li>
                                 <li><a href="{!! url('notes/search/7/session1') !!}">Imprimer relevé int. S1</a></li>
                                 <li><a href="{!! url('notes/search/7/session2') !!}">Imprimer relevé int. S2</a></li>
                                 <li><a href="{!! url('notes/search/14/session1') !!}">Imprimer relevé int. S1 DLA</a></li>

@@ -86,6 +86,9 @@ Route::prefix('')->middleware('auth')->group(function () {
     Route::get('enseignements/create/{semestre}/{specialite}', 'EnseignementController@create')->name('enseignements.create');
     Route::get('enseignements/rapport/{n}', 'EnseignementController@rapport')->name('rapport');
 
+    // Afficher les fiches d'autorisation de paiement
+    Route::get('enseignements/autorisation-paiement/{id}', 'EnseignementController@autorisationPaiement')->name('enseignements.autorisation-paiement');
+
     //    Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 
     Route::resource('roles', 'RoleController');
@@ -107,7 +110,10 @@ Route::prefix('')->middleware('auth')->group(function () {
     Route::get('notes/releve/{session}/{contrat}/{semestre}', 'NoteController@releve')->name('notes.releve');
     Route::get('notes/pv/{specialite}/{semestre}/{type?}', 'NoteController@a_deliberer')->name('notes.a_deliberer');
     Route::post('notes/pv/{specialite}/{semestre}/{type?}', 'NoteController@pv')->name('notes.pv');
+
     Route::get('notes/pvcc/{specialite}/{semestre}', 'NoteController@pvcc')->name('notes.pvcc');
+    Route::get('notes/pvccDla/{specialite}/{semestre}', 'NoteController@pvcc_dla')->name('notes.pvcc_dla');
+    Route::get('notes/pvccYde/{specialite}/{semestre}', 'NoteController@pvcc_yde')->name('notes.pvcc_yde');
 
     Route::get('notes/rn_intermediaire/{specialite}/{semestre}/{type?}', 'NoteController@rn_intermediaire')->name('notes.rn_intermediaire');
     Route::get('notes/rn_intermediaireDouala/{specialite}/{semestre}/{type?}', 'NoteController@rn_intermediaireDouala')->name('notes.rn_intermediaireDouala');
