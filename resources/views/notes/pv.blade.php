@@ -129,7 +129,7 @@
                     </tr>
                     <tr > {{-- Affichage des entete d'unite d'enseignement --}}
                         @foreach($ues as $ue)
-                            <th class="text-center" colspan="{{ 2*$enseignements->where('ue_id', $ue->id)->count() +2 }}">{{ $ue->code .$specialityCode .$semestre->id. ': ' .$ue->title }}</th>
+                            <th class="text-center" colspan="{{ 2*$enseignements->where('ue_id', $ue->id)->where('ville_id', 1)->count() +2 }}">{{ $ue->code .$specialityCode .$semestre->id. ': ' .$ue->title }}</th>
                         @endforeach
                         <th>{{ sizeof($ues) }}</th>
                         <th rowspan="4" class="vertical bg-info"><div><span>Moyenne Semestrielle</span></div></th>
@@ -137,8 +137,8 @@
                     </tr>
                     <tr class="info">
                         @foreach($ues as $ue)
-                            @foreach($enseignements as $enseignement)
-                                @if($enseignement->ue_id == $ue->id)
+                            @foreach($ec as $ecue)
+                                @if($ecue->enseignements->where('ue_id', $ue->id)->where('specialite_id', $specialite->id)->where('ville_id', 1)->first())
                                     <th>Ecue</th>
                                     <th>Credit</th>
                                 @endif
@@ -153,19 +153,19 @@
                     </tr>
                     <tr class="bg-warning">
                         @foreach($ues as $ue)
-                            @foreach($enseignements as $enseignement)
-                                @if($enseignement->ue_id == $ue->id)
-                                    <th class="vertical"><div><p>{!! wordwrap($enseignement->ecue->title, 26, '<br />', true) !!}</p></div></th>
-                                    <th>{{ $enseignement->credits }}</th>
+                            @foreach($ec as $ecue)
+                                @if($ecue->enseignements->where('ue_id', $ue->id)->where('specialite_id', $specialite->id)->where('ville_id', 1)->first())
+                                    <th class="vertical"><div><p>{!! wordwrap($ecue->title, 26, '<br />', true) !!}</p></div></th>
+                                    <th>{{ $ecue->enseignements->where('specialite_id', $specialite->id)->first()->credits }}</th>
                                 @endif
                             @endforeach
-                            <th>{{ $enseignements->where('ue_id', $ue->id)->sum('credits') }}</th>
+                            <th>{{ $enseignements->where('ue_id', $ue->id)->where('ville_id', 1)->sum('credits') }}</th>
                         @endforeach
                     </tr>
                     <tr>
                         @foreach($ues as $ue)
-                            @foreach($enseignements as $enseignement)
-                                @if($enseignement->ue_id == $ue->id)
+                            @foreach($ec as $ecue)
+                                @if($ecue->enseignements->where('ue_id', $ue->id)->where('specialite_id', $specialite->id)->where('ville_id', 1)->first())
                                     <th>Note</th>
                                     <th>Pond</th>
                                 @endif
@@ -182,21 +182,21 @@
                         <td>{{ $academicYear->fin. '-' .$contrat->id }}</td>
                         <td class="text-left">{{ $contrat->apprenant->nom. ' ' .$contrat->apprenant->prenom }}</td>
                         @foreach($ues as $ue)
-                            @foreach($enseignements as $enseignement)
-                                @if($enseignement->ue_id == $ue->id)
+                            @foreach($ec as $ecue)
+                                @if($ecue->enseignements->where('ue_id', $ue->id)->where('specialite_id', $specialite->id)->where('ville_id', $contrat->ville_id)->first())
                                     @if($session == 'session1')
                                         <td>
-                                            {!! $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del1 !!}
+                                            {!! $contrat->notes->where('enseignement_id', $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first()->id)->first() ? $contrat->notes->where('enseignement_id', $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first()->id)->first()->del1 : 0 !!}
                                         </td>
                                         <td>
-                                            {!! $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del1 * $enseignement->credits !!}
+                                            {!! ($contrat->notes->where('enseignement_id', $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first()->id)->first() ? $contrat->notes->where('enseignement_id', $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first()->id)->first()->del1 : 0) * $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->first()->credits !!}
                                         </td>
                                     @elseif($session == 'session2')
                                         <td>
-                                            {!! ($contrat->notes->where('enseignement_id', $enseignement->id)->first()->del2 > $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del1) ? $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del2 : $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del1 !!}
+                                            {!! $contrat->notes->where('enseignement_id', $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first()->id)->first()->del2 !!}
                                         </td>
                                         <td>
-                                            {!! (($contrat->notes->where('enseignement_id', $enseignement->id)->first()->del2 > $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del1) ? $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del2 : $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del1) * $enseignement->credits !!}
+                                            {!! $contrat->notes->where('enseignement_id', $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', $contrat->ville_id)->first()->id)->first()->del2 * $ecue->enseignements->where('specialite_id', $specialite->id)->first()->credits !!}
                                         </td>
                                     @elseif($session == 'enjambement')
                                         <td>
@@ -209,10 +209,10 @@
                                 @endif
                             @endforeach
                             <td>
-                                {{ $contrat->ue_infos->where('ue_id', $ue->id)->first()->moyenne }}
+                                {{ $contrat->ue_infos->where('ue_id', $ue->id)->first() ? $contrat->ue_infos->where('ue_id', $ue->id)->first()->moyenne : "" }}
                             </td>
 
-                                @if($contrat->ue_infos->where('ue_id', $ue->id)->first()->mention == 'Validé')
+                                @if($contrat->ue_infos->where('ue_id', $ue->id)->first() && $contrat->ue_infos->where('ue_id', $ue->id)->first()->mention == 'Validé')
                                     <td class="bg-success">
                                         V
                                     </td>

@@ -78,14 +78,16 @@
                                 <li><a href="{!! url('notes/search/6') !!}">Imprimer pv cc</a></li>
                                 <li><a href="{!! url('notes/search/16') !!}">Imprimer pv cc DLA</a></li>
                                 <li><a href="{!! url('notes/search/17') !!}">Imprimer pv cc YDE</a></li>
+                                <li><a href="{!! url('notes/search/5/session1') !!}">Imprimer pv session 1</a></li>
+                                <li><a href="{!! url('notes/search/5/session2') !!}">Imprimer pv session 2</a></li>
+                                <!--
                                 <li><a href="{!! url('notes/search/7/session1') !!}">Imprimer relevé int. S1</a></li>
                                 <li><a href="{!! url('notes/search/7/session2') !!}">Imprimer relevé int. S2</a></li>
+                                -->
                                 <li><a href="{!! url('notes/search/14/session1') !!}">Imprimer relevé int. S1 DLA</a></li>
                                 <li><a href="{!! url('notes/search/14/session2') !!}">Imprimer relevé int. S2 DLA</a></li>
                                 <li><a href="{!! url('notes/search/15/session1') !!}">Imprimer relevé int. S1 YDE</a></li>
                                 <li><a href="{!! url('notes/search/15/session2') !!}">Imprimer relevé int. S2 YDE</a></li>
-                                <li><a href="{!! url('notes/search/5/session1') !!}">Imprimer pv session 1</a></li>
-                                <li><a href="{!! url('notes/search/5/session2') !!}">Imprimer pv session 2</a></li>
                                 <li><a href="{!! url('notes/search/2') !!}">Imprimer Relevé de notes</a></li>
                         @endcan
                         <li><a href="{!! url('notes/search/8') !!}">Fiches de notation CC DLA</a></li>

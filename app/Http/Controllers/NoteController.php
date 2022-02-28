@@ -528,7 +528,7 @@ class NoteController extends Controller
             ->orderBy('apprenants.nom')
             ->orderBy('apprenants.prenom');
 
-        //Si on est en deuxieme session? on recupere les etudiant qui son alles en 2e session
+        //Si on est en deuxieme session? on recupere les etudiants qui son alles en 2e session
         $contrats = ($session == 'session1') ? $c->get() : $c->whereHas('semestre_infos', function($q) use ($sem){
             $q->where('session', 'session2')->where('semestre_id', $sem);
         })->get();
@@ -585,6 +585,8 @@ class NoteController extends Controller
 
         $enseignements = Enseignement::whereHas('notes')->whereIn('ecue_id', $ecues)->where('academic_year_id', $aa->id)->where('specialite_id', $specialite->id)->get();
 
+        //$eq = $specialite->ecues->where('academic_year_id', $aa->id)->where('semestre_id', $sem);
+
         // dd($enseignements);
 
         $ues = [];
@@ -599,17 +601,17 @@ class NoteController extends Controller
 
         //Controle pour verifier que tous les apprenants ont des notes enregistrées
         foreach ($contrats as $contrat) {
-            foreach ($enseignements as $enseignement) {
-                if($contrat->notes->where('enseignement_id', $enseignement->id)->first() == null){
+            foreach ($enseignements->where('ville_id', $contrat->ville_id) as $enseignement) {
+                if($enseignement->ville_id == $contrat->ville_id && $contrat->notes->where('enseignement_id', $enseignement->id)->first() == null){
                     Flash::error('L\'etudiant(e) '. $contrat->apprenant->nom .' '. $contrat->apprenant->prenom .' ne possede pas de note de '. $enseignement->ecue->title);
                     return redirect()->back();
                 }
             }
         }
-
+        // dd($result);
 
         $specialityCode = $this->specialityCode[$specialite->slug];
-        return view('notes.pv', compact('contrats', 'enseignements', 'ues', 'semestre', 'i', 'academicYear', 'session', 'specialite', 'specialityCode' ));
+        return view('notes.pv', compact('contrats', 'enseignements', 'ues', 'semestre', 'i', 'academicYear', 'session', 'specialite', 'specialityCode', 'ec' ));
     }
 
     /**
@@ -633,22 +635,21 @@ class NoteController extends Controller
         // dd($session);
         $ues = [];
 
-        foreach ($enseignements as $enseignement){
+        foreach ($enseignements->where('ville_id', $contrat->ville_id) as $enseignement){
             $ues[$enseignement->ue_id] = $enseignement->ue;
         }
 
         foreach ($ues as $ue){
             $ueInfo = $this->ueInfoRepository->firstOrNew(['ue_id' => $ue->id, 'contrat_id' => $contrat->id]);
             $elim = false;
-            $creditTot = $enseignements->where('ue_id', $ue->id)->sum('credits');
+            $creditTot = $enseignements->where('ue_id', $ue->id)->where('ville_id', $contrat->ville_id)->sum('credits');
             $creditObt = 0;
             $totalUe = 0;
             //en fonction des notes enjambement. lorsque ce sera géré.
             $note = 0;
 
-
             // $notes=[];
-            foreach ($enseignements->where('ue_id', $ue->id) as $enseignement){
+            foreach ($enseignements->where('ue_id', $ue->id)->where('ville_id', $contrat->ville_id) as $enseignement){
                 if($contrat->notes->where('enseignement_id', $enseignement->id)->first() == null){
                     return false;
                 }
@@ -679,10 +680,10 @@ class NoteController extends Controller
                 }
 
             }
-
+            
             $ueInfo->creditObt = $creditObt;
             $ueInfo->creditTot = $creditTot;
-            $ueInfo->moyenne = $totalUe / $ueInfo->creditTot;
+            $ueInfo->moyenne = $totalUe / $creditTot;
             $ueInfo->totalNotes = $totalUe;
 
             $totalSem += $ueInfo->totalNotes;
