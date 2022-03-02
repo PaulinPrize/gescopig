@@ -7,6 +7,15 @@
 
         <!-- Bootstrap 3.3.7 -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+        <style>           
+            @media print { 
+                .table td, .table th { 
+                    border: 1px solid #000000 !important;
+                } 
+            }
+        </style>
+
     </head>
     <body>  
         <div class="content">

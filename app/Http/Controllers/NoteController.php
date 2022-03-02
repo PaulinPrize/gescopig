@@ -119,12 +119,14 @@ class NoteController extends Controller
         elseif($n == '11'){
             $method = 'afficheNotesYaounde';
         }
+        /*
         elseif($n == '12'){
             $method = 'deliberationDouala';
         }
         elseif($n == '13'){
             $method = 'deliberationYaounde';
         }
+        */
         elseif($n == '14'){
             $method = 'rn_intermediaireDouala';
         }
@@ -665,7 +667,7 @@ class NoteController extends Controller
                     $del1 = $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del1;
                     $del2 = $contrat->notes->where('enseignement_id', $enseignement->id)->first()->del2;
 
-                    $note = ($del2 > $del1) ? $del2 : $del1; //Si la note deuxieme session est superieure a la note de premiere session considerer la note de 2e session sinon considerer la 1ere session
+                    $note = ($del2 > 0) ? $del2 : $del1; //Si la note deuxieme session est superieure a la note de premiere session considerer la note de 2e session sinon considerer la 1ere session
                     // dd($note);
                 }
                 elseif($session == 'enjambement'){
@@ -756,41 +758,10 @@ class NoteController extends Controller
 
     }
 
-    public function deliberationDouala($sem, $spec, Request $request){
-        $specialite = $this->specialiteRepository->findWithoutFail($spec);
-        $semestre = $this->semestreRepository->findWithoutFail($sem);
-        $aa = ($request->ay_id == null) ? $this->anneeAcademic : $this->academicYearRepository->findWithoutFail($request->ay_id);
-        $contrats = $this->contratRepository->findWhere([
-            'specialite_id' => $specialite->id,
-            'cycle_id' => $semestre->cycle->id,
-            'academic_year_id' => $aa->id,
-            'ville_id' => 1
-        ]);
-
-        return view('notes.deliberationDouala', compact('specialite', 'semestre', 'contrats'));
-
-    }
-
-    public function deliberationYaounde($sem, $spec, Request $request){
-        $specialite = $this->specialiteRepository->findWithoutFail($spec);
-        $semestre = $this->semestreRepository->findWithoutFail($sem);
-        $aa = ($request->ay_id == null) ? $this->anneeAcademic : $this->academicYearRepository->findWithoutFail($request->ay_id);
-        $contrats = $this->contratRepository->findWhere([
-            'specialite_id' => $specialite->id,
-            'cycle_id' => $semestre->cycle->id,
-            'academic_year_id' => $aa->id,
-            'ville_id' => 2
-        ]);
-
-        return view('notes.deliberationYaounde', compact('specialite', 'semestre', 'contrats'));
-
-    }
-
     public function noteDeliberation($type, $app, $sem){
         $contrat = $this->contratRepository->findWithoutFail($app);
         $semestre = $this->semestreRepository->findWithoutFail($sem);
         $ecues = $contrat->specialite->ecues->where('semestre_id', $semestre->id)->where('academic_year_id', $contrat->academic_year_id); // toutes les ecues de la specialite de l'etudiant.
-
         $denied = false; //pour verifier que les notes de 1ere session ont ete deja renseignees
 
         $enseignements = []; //conteneur dans lequel seront chargés tous les enseignements concernés
@@ -820,68 +791,6 @@ class NoteController extends Controller
 //         }
 
         return view('notes.noteDeliberation', compact('contrat', 'enseignements', 'type', 'sem'));
-    }
-
-    public function noteDeliberationDouala($type, $app, $sem){
-        $contrat = $this->contratRepository->findWithoutFail($app);
-        $semestre = $this->semestreRepository->findWithoutFail($sem);
-        $ecues = $contrat->specialite->ecues->where('semestre_id', $semestre->id)->where('academic_year_id', $contrat->academic_year_id); // toutes les ecues de la specialite de l'etudiant.
-
-        $denied = false; //pour verifier que les notes de 1ere session ont ete deja renseignees
-
-        $enseignements = []; //conteneur dans lequel seront chargés tous les enseignements concernés
-
-        foreach($ecues as $ecue){
-            $ens = $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', 1)->where('academic_year_id', '==', $contrat->academic_year_id)->first();
-            ($ens) ? $enseignements[] = $ens : '';
-        }
-
-        /**
-         * Pour chaque enseigements verifier que l'etudiant possede une note et
-         * qu'il possede aussi une note dans la session dans laquelle il va etre delibere.
-         */
-
-        foreach ($enseignements as $e){
-            if($contrat->notes->where('enseignement_id', $e->id)->first()) {
-                if ($contrat->notes->where('enseignement_id', $e->id)->first()->session1 == null)
-                    $denied = true;
-            }
-            else
-                $denied = true;
-        }
-
-        return view('notes.noteDeliberationDouala', compact('contrat', 'enseignements', 'type', 'sem'));
-    }
-
-    public function noteDeliberationYaounde($type, $app, $sem){
-        $contrat = $this->contratRepository->findWithoutFail($app);
-        $semestre = $this->semestreRepository->findWithoutFail($sem);
-        $ecues = $contrat->specialite->ecues->where('semestre_id', $semestre->id)->where('academic_year_id', $contrat->academic_year_id); // toutes les ecues de la specialite de l'etudiant.
-
-        $denied = false; //pour verifier que les notes de 1ere session ont ete deja renseignees
-
-        $enseignements = []; //conteneur dans lequel seront chargés tous les enseignements concernés
-
-        foreach($ecues as $ecue){
-            $ens = $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', 2)->where('academic_year_id', '==', $contrat->academic_year_id)->first();
-            ($ens) ? $enseignements[] = $ens : '';
-        }
-
-        /**
-         * Pour chaque enseigements verifier que l'etudiant possede une note et
-         * qu'il possede aussi une note dans la session dans laquelle il va etre delibere.
-         */
-
-        foreach ($enseignements as $e){
-            if($contrat->notes->where('enseignement_id', $e->id)->first()) {
-                if ($contrat->notes->where('enseignement_id', $e->id)->first()->session1 == null)
-                    $denied = true;
-            }
-            else
-                $denied = true;
-        }
-
-        return view('notes.noteDeliberationYaounde', compact('contrat', 'enseignements', 'type', 'sem'));
     }
 
     public function saveDeliberation($sem, $type, $contrat, Request $request){
@@ -916,6 +825,100 @@ class NoteController extends Controller
 
         return redirect()->back()->with([$semestre->id, $contrat->specialite_id]);
     }
+
+    /*
+    public function deliberationDouala($sem, $spec, Request $request){
+        $specialite = $this->specialiteRepository->findWithoutFail($spec);
+        $semestre = $this->semestreRepository->findWithoutFail($sem);
+        $aa = ($request->ay_id == null) ? $this->anneeAcademic : $this->academicYearRepository->findWithoutFail($request->ay_id);
+        $contrats = $this->contratRepository->findWhere([
+            'specialite_id' => $specialite->id,
+            'cycle_id' => $semestre->cycle->id,
+            'academic_year_id' => $aa->id,
+            'ville_id' => 1
+        ]);
+
+        return view('notes.deliberationDouala', compact('specialite', 'semestre', 'contrats'));
+
+    }
+
+    public function deliberationYaounde($sem, $spec, Request $request){
+        $specialite = $this->specialiteRepository->findWithoutFail($spec);
+        $semestre = $this->semestreRepository->findWithoutFail($sem);
+        $aa = ($request->ay_id == null) ? $this->anneeAcademic : $this->academicYearRepository->findWithoutFail($request->ay_id);
+        $contrats = $this->contratRepository->findWhere([
+            'specialite_id' => $specialite->id,
+            'cycle_id' => $semestre->cycle->id,
+            'academic_year_id' => $aa->id,
+            'ville_id' => 2
+        ]);
+
+        return view('notes.deliberationYaounde', compact('specialite', 'semestre', 'contrats'));
+
+    }
+    */
+
+
+    /*
+    public function noteDeliberationDouala($type, $app, $sem){
+        $contrat = $this->contratRepository->findWithoutFail($app);
+        $semestre = $this->semestreRepository->findWithoutFail($sem);
+        $ecues = $contrat->specialite->ecues->where('semestre_id', $semestre->id)->where('academic_year_id', $contrat->academic_year_id); // toutes les ecues de la specialite de l'etudiant.
+
+        $denied = false; //pour verifier que les notes de 1ere session ont ete deja renseignees
+
+        $enseignements = []; //conteneur dans lequel seront chargés tous les enseignements concernés
+
+        foreach($ecues as $ecue){
+            $ens = $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', 1)->where('academic_year_id', '==', $contrat->academic_year_id)->first();
+            ($ens) ? $enseignements[] = $ens : '';
+        }
+
+        
+        //Pour chaque enseigements verifier que l'etudiant possede une note et qu'il possede aussi une note dans la session dans laquelle il va etre delibere.
+
+        foreach ($enseignements as $e){
+            if($contrat->notes->where('enseignement_id', $e->id)->first()) {
+                if ($contrat->notes->where('enseignement_id', $e->id)->first()->session1 == null)
+                    $denied = true;
+            }
+            else
+                $denied = true;
+        }
+
+        return view('notes.noteDeliberationDouala', compact('contrat', 'enseignements', 'type', 'sem'));
+    }
+    */
+
+    /*
+    public function noteDeliberationYaounde($type, $app, $sem){
+        $contrat = $this->contratRepository->findWithoutFail($app);
+        $semestre = $this->semestreRepository->findWithoutFail($sem);
+        $ecues = $contrat->specialite->ecues->where('semestre_id', $semestre->id)->where('academic_year_id', $contrat->academic_year_id); // toutes les ecues de la specialite de l'etudiant.
+
+        $denied = false; //pour verifier que les notes de 1ere session ont ete deja renseignees
+
+        $enseignements = []; //conteneur dans lequel seront chargés tous les enseignements concernés
+
+        foreach($ecues as $ecue){
+            $ens = $ecue->enseignements->where('specialite_id', $contrat->specialite_id)->where('ville_id', 2)->where('academic_year_id', '==', $contrat->academic_year_id)->first();
+            ($ens) ? $enseignements[] = $ens : '';
+        }
+
+        // Pour chaque enseigements verifier que l'etudiant possede une note et qu'il possede aussi une note dans la session dans laquelle il va etre delibere.
+         
+        foreach ($enseignements as $e){
+            if($contrat->notes->where('enseignement_id', $e->id)->first()) {
+                if ($contrat->notes->where('enseignement_id', $e->id)->first()->session1 == null)
+                    $denied = true;
+            }
+            else
+                $denied = true;
+        }
+
+        return view('notes.noteDeliberationYaounde', compact('contrat', 'enseignements', 'type', 'sem'));
+    }
+    */
 
     protected function setResultat($contrat, $semestre){
         $resultat = $this->resultatNominatifsRepository->firstOrNew(['contrat_id' => $contrat->id]);

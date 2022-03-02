@@ -65,11 +65,13 @@
                             <li><a href="{!! url('notes/search/11') !!}">Enregistrer notes YDE</a></li>
                         @endcan
                         @can('create deliberation')
-                            <!--
                             <li><a href="{!! url('notes/search/3') !!}">Enregistrer notes de deliberation</a></li>
-                            -->
+                            <!--
                             <li><a href="{!! url('notes/search/12') !!}">Enr notes de deliberation DLA</a></li>
+                            -->
+                            <!--
                             <li><a href="{!! url('notes/search/13') !!}">Enr notes de deliberation YDE</a></li>
+                            -->
                         @endcan
                         @can('create deliberation')
                             <li><a href="{!! url('notes/search/4') !!}">Liste des etudiants en 2e session</a></li>

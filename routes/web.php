@@ -14,7 +14,7 @@
 
 
 Auth::routes();
-Route::prefix('admin')->namespace('Back')->group(function () {
+Route::prefix('admin')->namespace('Back')->group(function () { 
     Route::name('admin')->get('/', 'AdminController@index');
 });
 Route::prefix('')->middleware('auth')->group(function () {
@@ -130,16 +130,21 @@ Route::prefix('')->middleware('auth')->group(function () {
     Route::post('notes1/{type}/{enseignement}', 'NoteController@storeDouala')->name('notes.storeDouala');
     // Enregistrer les notes de Yaoundé
     Route::post('notes2/{type}/{enseignement}', 'NoteController@storeYaounde')->name('notes.storeYaounde');
-    Route::post('notes/deliberation/{semestre}/{type}/{contrat}', 'NoteController@saveDeliberation')->name('notes.saveDeliberation');
+
+    
 
     Route::get('notes/deliberation/{semestre}/{specialite}', 'NoteController@deliberation')->name('notes.deliberation');
     Route::get('notes/notesDeliberation/{type}/{contrat}/{semestre}', 'NoteController@noteDeliberation')->name('notes.noteDeliberation');
+    // Enregistrer la note de délibération
+    Route::post('notes/deliberation/{semestre}/{type}/{contrat}', 'NoteController@saveDeliberation')->name('notes.saveDeliberation');
+    /*
+        Séparer les notes de délibération de Douala et Yaoundé
+        Route::get('notes/deliberationDouala/{semestre}/{specialite}', 'NoteController@deliberationDouala')->name('notes.deliberationDouala');
+        Route::get('notes/notesDeliberationDouala/{type}/{contrat}/{semestre}', 'NoteController@noteDeliberationDouala')->name('notes.noteDeliberationDouala');
 
-    Route::get('notes/deliberationDouala/{semestre}/{specialite}', 'NoteController@deliberationDouala')->name('notes.deliberationDouala');
-    Route::get('notes/notesDeliberationDouala/{type}/{contrat}/{semestre}', 'NoteController@noteDeliberationDouala')->name('notes.noteDeliberationDouala');
-
-    Route::get('notes/deliberationYaounde/{semestre}/{specialite}', 'NoteController@deliberationYaounde')->name('notes.deliberationYaounde');
-    Route::get('notes/notesDeliberationYaounde/{type}/{contrat}/{semestre}', 'NoteController@noteDeliberationYaounde')->name('notes.noteDeliberationYaounde');
+        Route::get('notes/deliberationYaounde/{semestre}/{specialite}', 'NoteController@deliberationYaounde')->name('notes.deliberationYaounde');
+        Route::get('notes/notesDeliberationYaounde/{type}/{contrat}/{semestre}', 'NoteController@noteDeliberationYaounde')->name('notes.noteDeliberationYaounde');
+    */
 
     Route::get('notes/getNoteContrat/{contrat}/{enseignement}', 'NoteController@getNoteContrat')->name('notes.getNoteContrat');
 

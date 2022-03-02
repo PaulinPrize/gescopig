@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Helpers\AcademicYear;
 use App\Models\Enseignement;
+use App\Models\Enseignant;
 use App\Models\TeacherPay;
 use App\Models\TroncCommun;
 use App\Models\Ville;
+use App\Models\ContratEnseignant;
 use App\Repositories\ContratEnseignantRepository;
 use App\Repositories\EnseignantRepository;
 use App\Repositories\EnseignementRepository;
@@ -17,6 +19,7 @@ use Laracasts\Flash\Flash;
 use Carbon\Carbon;
 use App\Repositories\AcademicYearRepository;
 use App\Repositories\VilleRepository;
+use DB;
 
 class ContratEnseignantController extends Controller
 {
@@ -96,29 +99,11 @@ class ContratEnseignantController extends Controller
     }
 
     public function all(){
-
-        $contrats = $this->contratEnseignantRepository->all();
-        $tronc_communs = [];
-
-        foreach ($contrats as $contrat) {
-            
-            $ens = []; //variable contenant enseignements distincts dispensés par enseignant
-            /** Ici on selectionne les differents troncs communs de l'enseignant afin de selectionner un enseignement par tronc commun*/
-            foreach ($contrat->enseignements as $enseignement) {
-                if ($enseignement->tronc_commun_id != null)
-                    $tronc_communs[$enseignement->tronc_commun_id] = $enseignement->tronc_commun;
-            }
-            /** On ajoute maintenant les de l'enseignant dans le tableau enseignementa */
-            foreach ($tronc_communs as $tronc_commun) {
-                $ens[$tronc_commun->enseignements->first()->id] = $tronc_commun->enseignements->first();
-            }
-            foreach ($contrat->enseignements->where('tronc_commun_id', null) as $special) {
-                $ens[$special->id] = $special;
-            }
-            $enseignements[$contrat->id] = $ens;
-        }
-
-        return view('contratEnseignants.all', compact('contrats', 'enseignements', 'tronc_communs'));
+        $contrat_enseignants = ContratEnseignant::with('enseignant')
+        ->where('academic_year_id', 2)
+        ->get();
+        //dd($contrat_enseignants);
+        return view('contratEnseignants.all', compact('contrat_enseignants'));
     }
 
     /*

@@ -10,6 +10,11 @@
         <style>
             th, td{
                 font-size: 16px;
+            }            
+            @media print { 
+                .table td, .table th { 
+                    border: 1px solid #000000 !important;
+                } 
             }
         </style>
     </head>
@@ -196,7 +201,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <div class="row" style="margin-bottom: 80px;">
+                            <div class="row" style="margin-bottom: 60px;">
                                 <div class="col-lg-12">
                                     <small style="font-weight: bold;font-size:18px;color: #000000">
                                         Le directeur des études
